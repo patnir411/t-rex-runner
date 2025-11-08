@@ -1,0 +1,14 @@
+# Ignore AI-generated images (can be large)
+ai_generated/*.png
+ai_generated/*.jpg
+ai_generated/*.jpeg
+
+# Ignore processed sprites (auto-generated)
+processed_sprites/*.png
+
+# Ignore output sprite sheets (auto-generated)
+output/**/*.png
+
+# Keep README files
+!**/*.md
+!**/README.md

@@ -1,0 +1,111 @@
+{
+  "sprite_definitions": {
+    "restart": {
+      "output_filename": "restart.png",
+      "total_dimensions": {"width": 36, "height": 32},
+      "frames": [
+        {"name": "restart", "width": 36, "height": 32}
+      ]
+    },
+    "cloud": {
+      "output_filename": "cloud.png",
+      "total_dimensions": {"width": 46, "height": 14},
+      "frames": [
+        {"name": "cloud", "width": 46, "height": 14}
+      ]
+    },
+    "pterodactyl": {
+      "output_filename": "pterodactyl.png",
+      "total_dimensions": {"width": 92, "height": 40},
+      "frames": [
+        {"name": "pterodactyl_1", "width": 46, "height": 40},
+        {"name": "pterodactyl_2", "width": 46, "height": 40}
+      ]
+    },
+    "cactus_small": {
+      "output_filename": "cactus_small.png",
+      "total_dimensions": {"width": 51, "height": 35},
+      "frames": [
+        {"name": "cactus_small_1", "width": 17, "height": 35},
+        {"name": "cactus_small_2", "width": 17, "height": 35},
+        {"name": "cactus_small_3", "width": 17, "height": 35}
+      ]
+    },
+    "cactus_large": {
+      "output_filename": "cactus_large.png",
+      "total_dimensions": {"width": 75, "height": 50},
+      "frames": [
+        {"name": "cactus_large_1", "width": 25, "height": 50},
+        {"name": "cactus_large_2", "width": 25, "height": 50},
+        {"name": "cactus_large_3", "width": 25, "height": 50}
+      ]
+    },
+    "moon": {
+      "output_filename": "moon.png",
+      "total_dimensions": {"width": 160, "height": 40},
+      "frames": [
+        {"name": "moon_phase_1", "width": 20, "height": 40},
+        {"name": "moon_phase_2", "width": 20, "height": 40},
+        {"name": "moon_phase_3", "width": 20, "height": 40},
+        {"name": "moon_phase_4", "width": 20, "height": 40},
+        {"name": "moon_phase_5", "width": 20, "height": 40},
+        {"name": "moon_phase_6", "width": 20, "height": 40},
+        {"name": "moon_phase_7", "width": 20, "height": 40}
+      ]
+    },
+    "star": {
+      "output_filename": "star.png",
+      "total_dimensions": {"width": 9, "height": 9},
+      "frames": [
+        {"name": "star", "width": 9, "height": 9}
+      ]
+    },
+    "numbers": {
+      "output_filename": "numbers.png",
+      "total_dimensions": {"width": 191, "height": 13},
+      "frames": [
+        {"name": "numbers", "width": 191, "height": 13}
+      ],
+      "note": "Contains digits 0-9, H, I, and GAME OVER text. Generate as single 191x13 image."
+    },
+    "trex": {
+      "output_filename": "trex.png",
+      "total_dimensions": {"width": 382, "height": 47},
+      "frames": [
+        {"name": "trex_standing", "width": 44, "height": 47, "offset": 0, "note": "Standing/jumping pose"},
+        {"name": "trex_blinking", "width": 44, "height": 47, "offset": 44, "note": "Eyes closed, body identical to standing"},
+        {"name": "trex_running_1", "width": 44, "height": 47, "offset": 88, "note": "Running frame 1"},
+        {"name": "trex_running_2", "width": 44, "height": 47, "offset": 132, "note": "Running frame 2"},
+        {"name": "trex_crashed", "width": 44, "height": 47, "offset": 220, "note": "Dead/crashed pose"},
+        {"name": "trex_ducking_1", "width": 59, "height": 47, "offset": 264, "note": "Ducking frame 1"},
+        {"name": "trex_ducking_2", "width": 59, "height": 47, "offset": 323, "note": "Ducking frame 2"}
+      ]
+    },
+    "horizon": {
+      "output_filename": "horizon.png",
+      "total_dimensions": {"width": 1200, "height": 12},
+      "frames": [
+        {"name": "horizon", "width": 1200, "height": 12}
+      ],
+      "note": "Repeating ground texture pattern"
+    }
+  },
+  "processing_config": {
+    "background_detection": {
+      "edge_sample_percent": 5,
+      "color_threshold": 30,
+      "crop_padding": 2
+    },
+    "resize_quality": "LANCZOS",
+    "validation": {
+      "min_sprite_coverage": 0.05,
+      "warn_aspect_ratio_diff": 0.2
+    }
+  },
+  "ai_generation_tips": {
+    "general": "Generate pixel art style images on a white or solid color background",
+    "dimensions": "AI will generate square images (e.g., 512x512, 1024x1024). Pipeline will auto-crop and resize.",
+    "multi_frame_consistency": "For animation frames (running, ducking, wings), use consistent prompt with only pose variation",
+    "recommended_prompt_suffix": "pixel art, 8-bit style, transparent/white background, centered, simple sprite"
+  }
+}
