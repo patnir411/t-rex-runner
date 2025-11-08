@@ -71,12 +71,77 @@ class SpriteProcessor:
 
         return bg_color
 
-    def auto_crop(self, image: Image.Image, padding: int = None) -> Image.Image:
+    def remove_background(self, image: Image.Image, gradient: bool = True) -> Image.Image:
         """
-        Auto-crop image by removing background detected from edges.
+        Remove background by creating alpha transparency based on color distance.
 
         Args:
-            image: Input PIL Image
+            image: Input PIL Image (RGBA)
+            gradient: If True, use gradient transparency for smooth edges
+
+        Returns:
+            PIL Image with transparent background
+        """
+        # Detect background color
+        bg_color = self.detect_background_color(image)
+
+        # Convert to numpy array
+        img_array = np.array(image.convert('RGBA'))
+
+        # Calculate color distance from background for each pixel
+        threshold = self.proc_config['background_detection']['color_threshold']
+        rgb = img_array[:, :, :3]
+        bg_array = np.array(bg_color)
+
+        # Euclidean distance in RGB space
+        diff = np.sqrt(np.sum((rgb.astype(float) - bg_array.astype(float)) ** 2, axis=2))
+
+        if gradient:
+            # Gradient alpha: smooth transition from transparent to opaque
+            # Pixels with distance < threshold → transparent
+            # Pixels with distance > threshold*2 → opaque
+            # In between → gradient
+            gradient_range = threshold
+            alpha = np.zeros(diff.shape, dtype=np.uint8)
+
+            # Fully transparent where very close to background
+            alpha[diff <= threshold] = 0
+
+            # Fully opaque where far from background
+            alpha[diff >= threshold + gradient_range] = 255
+
+            # Gradient in between
+            gradient_mask = (diff > threshold) & (diff < threshold + gradient_range)
+            if np.any(gradient_mask):
+                gradient_values = ((diff[gradient_mask] - threshold) / gradient_range * 255).astype(np.uint8)
+                alpha[gradient_mask] = gradient_values
+        else:
+            # Binary alpha: either fully transparent or fully opaque
+            alpha = np.where(diff > threshold, 255, 0).astype(np.uint8)
+
+        # Apply alpha channel
+        img_array[:, :, 3] = alpha
+
+        result = Image.fromarray(img_array, mode='RGBA')
+
+        # Count transparent vs opaque pixels for feedback
+        transparent_count = np.sum(alpha == 0)
+        opaque_count = np.sum(alpha == 255)
+        partial_count = np.sum((alpha > 0) & (alpha < 255))
+        total = alpha.size
+
+        print(f"  Background removed: {transparent_count/total*100:.1f}% transparent, "
+              f"{opaque_count/total*100:.1f}% opaque"
+              + (f", {partial_count/total*100:.1f}% gradient" if gradient else ""))
+
+        return result
+
+    def auto_crop(self, image: Image.Image, padding: int = None) -> Image.Image:
+        """
+        Auto-crop image by removing transparent/background areas.
+
+        Args:
+            image: Input PIL Image (RGBA preferred)
             padding: Extra padding around cropped sprite (default from config)
 
         Returns:
@@ -85,18 +150,27 @@ class SpriteProcessor:
         if padding is None:
             padding = self.proc_config['background_detection']['crop_padding']
 
-        # Detect background color
-        bg_color = self.detect_background_color(image)
+        # Convert to RGBA to check alpha channel
+        if image.mode != 'RGBA':
+            image = image.convert('RGBA')
 
-        # Convert to numpy array
-        img_array = np.array(image.convert('RGB'))
+        img_array = np.array(image)
 
-        # Create binary mask: True where pixel differs from background
-        threshold = self.proc_config['background_detection']['color_threshold']
-        diff = np.abs(img_array - np.array(bg_color))
-        mask = np.any(diff > threshold, axis=2)
+        # Use alpha channel if available (from background removal)
+        if img_array.shape[2] == 4:
+            # Alpha channel available - crop based on non-transparent pixels
+            alpha = img_array[:, :, 3]
+            mask = alpha > 10  # Consider pixels with alpha > 10 as content
+            crop_method = "alpha channel"
+        else:
+            # Fallback to color-based detection
+            bg_color = self.detect_background_color(image)
+            threshold = self.proc_config['background_detection']['color_threshold']
+            diff = np.abs(img_array[:, :, :3] - np.array(bg_color))
+            mask = np.any(diff > threshold, axis=2)
+            crop_method = f"color (bg: RGB{bg_color})"
 
-        # Find bounding box of non-background pixels
+        # Find bounding box of content pixels
         rows = np.any(mask, axis=1)
         cols = np.any(mask, axis=0)
 
@@ -108,7 +182,7 @@ class SpriteProcessor:
         x_min, x_max = np.where(cols)[0][[0, -1]]
 
         # Add padding
-        height, width = img_array.shape[:2]
+        height, width = mask.shape
         y_min = max(0, y_min - padding)
         y_max = min(height - 1, y_max + padding)
         x_min = max(0, x_min - padding)
@@ -117,7 +191,7 @@ class SpriteProcessor:
         # Crop
         cropped = image.crop((x_min, y_min, x_max + 1, y_max + 1))
 
-        print(f"  Auto-cropped: {image.size} → {cropped.size} (bg color: RGB{bg_color})")
+        print(f"  Auto-cropped: {image.size} → {cropped.size} (using {crop_method})")
 
         return cropped
 
@@ -292,8 +366,11 @@ class SpriteProcessor:
                 print(f"    Error loading image: {e}")
                 return False
 
-            # Auto-crop
-            cropped = self.auto_crop(image)
+            # Remove background (make transparent)
+            image_transparent = self.remove_background(image, gradient=True)
+
+            # Auto-crop (crops to non-transparent bounds)
+            cropped = self.auto_crop(image_transparent)
 
             # Resize to exact dimensions
             resized = self.intelligent_resize(cropped, target_width, target_height)
