@@ -10,6 +10,30 @@ This is the T-Rex runner game extracted from Chrome's offline error page. It's a
 
 **Live Demo**: http://wayou.github.io/t-rex-runner/
 
+## Current Development Status (November 2025)
+
+**Active Work**: AI Sprite Generation Pipeline
+
+Recent commits:
+- `c7f161a` - Debugging sprite offset alignment in packed sprite sheets
+- `99ef8cd` - Initial AI sprite generation experiment with automated processing
+
+**What's Being Worked On**:
+1. **Automated sprite replacement system** using AI-generated images
+2. **Processing pipeline** (`process_ai_sprites.py`) for background removal, auto-cropping, and resizing
+3. **Sprite packing** (`pack_sprites.py`) to generate game-ready sprite sheets
+4. **Validation** of collision boxes and sprite positioning with custom themes
+
+See [README_AI_SPRITES.md](README_AI_SPRITES.md) for full pipeline documentation and [ARCHITECTURE.md](ARCHITECTURE.md) for comprehensive technical architecture.
+
+## Documentation
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Complete technical architecture, rendering pipeline, physics, collision detection, and sprite system
+- **[README_AI_SPRITES.md](README_AI_SPRITES.md)** - AI sprite generation pipeline guide
+- **[AI_PROMPTS.md](AI_PROMPTS.md)** - Prompting guide for generating sprites with AI
+- **[SPRITE_PACKING_GUIDE.md](SPRITE_PACKING_GUIDE.md)** - Sprite sheet packing reference
+- **[PIPELINE_SUMMARY.md](PIPELINE_SUMMARY.md)** - Pipeline implementation details
+
 ## Development
 
 This is a static HTML/CSS/JavaScript project with no build step required.
@@ -45,12 +69,24 @@ Then navigate to `http://localhost:8000`
 
 ### File Structure
 
+**Core Game Files:**
 - `index.html` - Main HTML file, includes embedded base64-encoded audio (30KB)
 - `index.js` - Complete game logic (2753 lines, single file, 90KB)
 - `index.css` - Styling for the game
-- `assets/` - Sprite sheets and images for different pixel densities
-  - `default_100_percent/100-offline-sprite.png` - Standard DPI sprite sheet (2.6KB)
-  - `default_200_percent/200-offline-sprite.png` - HiDPI/Retina sprite sheet (3.2KB)
+- `bot.js` - AI bot for automated gameplay
+
+**Sprite Assets:**
+- `assets/default_100_percent/100-offline-sprite.png` - Standard DPI sprite sheet (1233×68px)
+- `assets/default_200_percent/200-offline-sprite.png` - HiDPI/Retina sprite sheet (2466×136px)
+- `assets/default_*_percent.backup/` - Original sprites (backed up during theme changes)
+
+**AI Sprite Generation Pipeline:**
+- `process_ai_sprites.py` - Process raw AI images (background removal, auto-crop, resize)
+- `pack_sprites.py` - Pack processed sprites into game-ready sprite sheets
+- `sprite_config.json` - Sprite definitions and dimensions
+- `ai_generated/` - Raw AI-generated images (input directory)
+- `processed_sprites/` - Processed sprites ready for packing (intermediate)
+- `output/` - Generated sprite sheets (output directory)
 
 ## Sprites and Animation
 
@@ -167,7 +203,71 @@ No automated test suite. Manual testing involves:
 6. Verifying collision detection accuracy
 7. Testing pause/resume when switching tabs
 
+## AI Sprite Customization System
+
+### Overview
+
+The game now includes an **automated pipeline for creating themed variations** using AI-generated sprites. This allows creating custom themes (sci-fi, underwater, fantasy, etc.) without code changes.
+
+### Pipeline Flow
+
+```
+1. AI Generation (Manual)
+   └─> Gemini/DALL-E/Midjourney → ai_generated/
+       • 27 sprite images required
+       • Any size (512×512, 1024×1024, etc.)
+       • Solid background color
+
+2. Processing (Automated)
+   └─> python process_ai_sprites.py
+       • Detect & remove background
+       • Auto-crop to sprite bounds
+       • Resize to exact game dimensions
+       • Combine animation frames
+       → processed_sprites/
+
+3. Packing (Automated)
+   └─> python pack_sprites.py
+       • Place sprites at fixed coordinates
+       • Generate LDPI (1233×68) sprite sheet
+       • Generate HDPI (2466×136) sprite sheet
+       → output/default_*_percent/
+
+4. Deployment (Manual)
+   └─> Copy to assets/ → Refresh browser → Play!
+```
+
+### Current Status
+
+**Working on**: Sprite offset alignment debugging
+- Fine-tuning sprite positioning in packed sheets
+- Validating collision box accuracy with custom sprites
+- Testing themed variations (cyber theme experimented)
+
+**Recent Issues Being Resolved**:
+- T-Rex sprite offset corrections (c7f161a)
+- Ground alignment validation
+- Ducking/crashed sprite positioning
+
+### Usage
+
+```bash
+# Process AI-generated sprites
+python process_ai_sprites.py --input ai_generated/ --output processed_sprites/ --preview
+
+# Pack into sprite sheets
+python pack_sprites.py --input processed_sprites/ --output output/
+
+# Deploy to game
+cp output/default_100_percent/100-offline-sprite.png assets/default_100_percent/
+cp output/default_200_percent/200-offline-sprite.png assets/default_200_percent/
+```
+
+See [README_AI_SPRITES.md](README_AI_SPRITES.md) for detailed pipeline documentation and [AI_PROMPTS.md](AI_PROMPTS.md) for sprite generation prompts.
+
 ## Architecture
+
+**For complete technical architecture, see [ARCHITECTURE.md](ARCHITECTURE.md)**
 
 ### Core Game Components
 
@@ -299,3 +399,77 @@ Triggered every 700 distance units:
 | Moon Phases | 7 |
 | Max Clouds | 6 |
 | Max Consecutive Same Obstacles | 2 |
+
+## Sprite Dimensions Reference
+
+For AI sprite generation and custom themes:
+
+| Sprite | Dimensions | Frames | Notes |
+|--------|-----------|--------|-------|
+| **restart** | 36×32 | 1 | Restart button icon |
+| **cloud** | 46×14 | 1 | Background cloud |
+| **star** | 9×9 | 1 | Night mode star |
+| **horizon** | 1200×12 | 1 | Repeating ground texture |
+| **numbers** | 191×13 | 1 | Contains 0-9, H, I, "GAME OVER" |
+| **trex** | 262×47 | 6 | Standing, blinking, running×2, crashed, ducking×2 |
+| **pterodactyl** | 92×40 | 2 | Wing animation (46px each) |
+| **cactus_small** | 51×35 | 3 | Three variations (17px each) |
+| **cactus_large** | 75×50 | 3 | Three variations (25px each) |
+| **moon** | 160×40 | 7 | Seven phases (~20px each) |
+
+**Sprite Sheet Layout** (LDPI 1233×68):
+```
+┌─────┬──────┬───────┬───┬────────┬──────┬──────┬───────┬──────────────┐
+│REST │CLOUD │PTERO  │...│CACTUS  │MOON  │STAR  │TEXT   │    TREX      │
+│ART  │      │       │   │        │      │      │       │              │
+└─────┴──────┴───────┴───┴────────┴──────┴──────┴───────┴──────────────┘
+  2     86     134         228-332   484    645    655         848-1110
+```
+
+## Development Workflow for Sprite Changes
+
+When working with sprite modifications:
+
+1. **Backup original sprites** before making changes
+   ```bash
+   cp -r assets/default_100_percent assets/default_100_percent.backup
+   cp -r assets/default_200_percent assets/default_200_percent.backup
+   ```
+
+2. **Validate sprite alignment** after packing
+   - Check T-Rex ground positioning (groundYPos calculation)
+   - Verify collision boxes match sprite bounds
+   - Test all animation states (standing, running, ducking, jumping, crashed)
+   - Verify obstacle collision detection accuracy
+
+3. **Debug sprite issues** using debug images
+   - Script generates debug_*.png files showing sprite placement
+   - Compare original vs. new sprite positioning
+   - Validate transparent areas and sprite bounds
+
+4. **Test in-game** before committing
+   - Run through full game cycle
+   - Test all obstacle types at various speeds
+   - Verify night mode transitions
+   - Check score display and UI elements
+
+## Key Line References
+
+For quick navigation in `index.js`:
+
+| Line | Component/Function |
+|------|-------------------|
+| 14 | `Runner` constructor |
+| 90-99 | Platform detection (HIDPI, iOS, mobile) |
+| 105-129 | `Runner.config` - Game configuration |
+| 163-188 | `Runner.spriteDefinition` - Sprite coordinates |
+| 531-611 | `update()` - Main game loop |
+| 1141-1237 | `checkForCollision()` - Collision detection |
+| 1279-1517 | `Obstacle` constructor and types |
+| 1468-1517 | `Obstacle.types` - Obstacle definitions |
+| 1527-1889 | `Trex` constructor and methods |
+| 1621-1642 | `Trex.animFrames` - Animation definitions |
+| 1788-1855 | Jump physics (`startJump`, `updateJump`) |
+| 1893-2142 | `DistanceMeter` - Score display |
+| 2246-2370 | `NightMode` - Night mode effects |
+| 2536-2744 | `Horizon` - Background manager |
