@@ -24,7 +24,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@google/genai": "^0.21.0",
+    "@google/genai": "^1.29.1",
     "mime": "^4.0.4"
   },
   "devDependencies": {

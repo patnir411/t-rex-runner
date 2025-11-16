@@ -406,10 +406,10 @@ class GeminiSpriteGenerator {
 
     try {
       // Configure generation with Gemini 2.5 Flash Image best practices
-      const config = {
-        responseModalities: ['IMAGE', 'TEXT'] as const,
+      const config: any = {
+        responseModalities: ['IMAGE', 'TEXT'],
         imageConfig: {
-          imageSize: '1K' as const, // 1024x1024 for high quality
+          imageSize: '1K',
         },
       };
 
