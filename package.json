@@ -1,0 +1,38 @@
+{
+  "name": "t-rex-runner-ai-sprites",
+  "version": "2.0.0",
+  "description": "AI sprite generation pipeline for T-Rex Runner using Gemini 2.5 Flash Image",
+  "main": "index.js",
+  "scripts": {
+    "generate": "ts-node generate_sprites_gemini.ts",
+    "generate:theme": "ts-node generate_sprites_gemini.ts --theme",
+    "process": "python process_ai_sprites.py --input ai_generated/ --output processed_sprites/",
+    "pack": "python pack_sprites.py --input processed_sprites/ --output output/",
+    "validate": "python validate_sprites.py",
+    "pipeline": "ts-node run_pipeline.ts",
+    "pipeline:full": "ts-node run_pipeline.ts --generate --process --pack --validate --deploy"
+  },
+  "keywords": [
+    "t-rex",
+    "chrome",
+    "game",
+    "sprites",
+    "ai",
+    "gemini",
+    "image-generation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^0.21.0",
+    "mime": "^4.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
