@@ -2,7 +2,9 @@
 
 **Automated end-to-end AI sprite generation for T-Rex Runner**
 
-This pipeline uses Google's **Gemini 2.5 Flash Image** (nicknamed "nano-banana") to automatically generate pixel-perfect game sprites with parallel batch processing and comprehensive validation.
+This pipeline uses Google's **Gemini 2.5 Flash Image** (nicknamed "nano-banana") to automatically generate pixel-perfect game sprites with parallel batch processing, **image-to-image consistency**, and comprehensive validation.
+
+✨ **NEW: Perfect Character Consistency** - Uses reference images to ensure all animation frames match perfectly! See [IMAGE_TO_IMAGE_CONSISTENCY.md](IMAGE_TO_IMAGE_CONSISTENCY.md) for details.
 
 ---
 
@@ -70,15 +72,23 @@ ts-node generate_sprites_gemini.ts --theme=cyberpunk --parallel=5
 
 **What it does:**
 - Generates **27 sprites** using Gemini 2.5 Flash Image
+- **🎨 Image-to-image consistency** - Uses reference images for perfect character matching:
+  - Base sprites generated first (text-only prompts)
+  - Animation frames use previous frame as reference
+  - Ensures T-Rex frames all look like the SAME character!
+  - See [IMAGE_TO_IMAGE_CONSISTENCY.md](IMAGE_TO_IMAGE_CONSISTENCY.md) for details
 - Uses optimized prompts based on Google's best practices:
   - Narrative-driven detailed descriptions
   - Explicit background specification ("solid white background")
   - Photographic/cinematic composition control
   - Aspect ratio hints for proper proportions
 - **Parallel batch processing** for speed (default: 3 at a time)
+- **Dependency-aware generation** - sprites with references generated in correct order
 - Saves to `ai_generated/` directory
 
 **Features:**
+- ✅ **Image-to-image consistency** (uses reference images for perfect matching)
+- ✅ **Dependency-aware generation** (base sprites → variations → chained frames)
 - ✅ Parallel generation (configurable batch size)
 - ✅ Automatic retry on failure
 - ✅ Progress tracking
@@ -447,6 +457,7 @@ export GEMINI_API_KEY="your-api-key"
 
 ## 🎓 Learning Resources
 
+- **[IMAGE_TO_IMAGE_CONSISTENCY.md](IMAGE_TO_IMAGE_CONSISTENCY.md)** - ✨ Learn about perfect character consistency!
 - [Official Gemini 2.5 Flash Image Guide](https://developers.googleblog.com/en/how-to-prompt-gemini-2-5-flash-image-generation-for-the-best-results/)
 - [Gemini API Documentation](https://ai.google.dev/gemini-api/docs/image-generation)
 - [T-Rex Runner Architecture](ARCHITECTURE.md)

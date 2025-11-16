@@ -2,6 +2,8 @@
 
 **Generate a complete T-Rex Runner theme in 5 minutes**
 
+✨ **NEW: Image-to-Image Consistency** - Uses reference images for perfect character matching across animation frames!
+
 ---
 
 ## 1. Install (30 seconds)
@@ -35,10 +37,12 @@ ts-node run_pipeline.ts --full --theme=cyberpunk --backup
 ```
 
 **That's it!** The pipeline will:
-- ✅ Generate 27 sprites with AI (~3-5 min)
+- ✅ Generate 27 sprites with AI (~3-5 min) **with perfect character consistency!**
 - ✅ Process and pack them
 - ✅ Validate alignment
 - ✅ Deploy to game
+
+**🎨 Image-to-image consistency is enabled by default** - ensures all T-Rex frames look like the same character!
 
 ---
 
@@ -135,6 +139,7 @@ assets/                 # Deployed to game ✅
 ## More Info
 
 - **Full docs:** [README_GEMINI_PIPELINE.md](README_GEMINI_PIPELINE.md)
+- **Image-to-image:** [IMAGE_TO_IMAGE_CONSISTENCY.md](IMAGE_TO_IMAGE_CONSISTENCY.md) ← **Learn about perfect consistency!**
 - **Setup:** [SETUP.md](SETUP.md)
 - **Architecture:** [ARCHITECTURE.md](ARCHITECTURE.md)
 
