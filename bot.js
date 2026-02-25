@@ -89,7 +89,11 @@ class TRexBot {
     startGame() {
         if (!this.runner.playing) {
             // Simulate space key press
-            const evt = new KeyboardEvent('keydown', { keyCode: 32 });
+            const evt = new KeyboardEvent('keydown', {
+                keyCode: 32,
+                code: 'Space',
+                key: ' '
+            });
             document.dispatchEvent(evt);
         }
     }
@@ -240,7 +244,7 @@ class TRexBot {
 // Create global bot instance
 const bot = new TRexBot();
 
-// Auto-start when page loads (optional - comment out if you want manual control)
+// Log available commands when page loads (bot must be started manually)
 window.addEventListener('load', () => {
     setTimeout(() => {
         console.log('🎮 T-Rex Bot ready!');
@@ -250,8 +254,5 @@ window.addEventListener('load', () => {
         console.log('  bot.stats    - View statistics');
         console.log('  bot.showStats() - Print statistics');
         console.log('  bot.setAggressiveness(factor) - Adjust reaction time');
-        console.log('');
-        console.log('Starting bot in 2 seconds...');
-        setTimeout(() => bot.start(), 2000);
     }, 500);
 });
